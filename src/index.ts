@@ -1,4 +1,8 @@
-import * as danger from "danger";
+export declare function message(message: string, file?: string|undefined, line?: number|undefined): void;
+export declare function warn(message: string, file?: string|undefined, line?: number|undefined): void;
+export declare function fail(message: string, file?: string|undefined, line?: number|undefined): void;
+export declare function markdown(message: string, file?: string|undefined, line?: number|undefined): void;
+
 import {readFile} from "fs-extra"
 import * as glob from "fast-glob";
 
@@ -27,11 +31,6 @@ export enum EAction {
 }
 
 type TDangerReviewMethod = (message: string, file?: string|undefined, line?: number|undefined) => void;
-const reviewCommand:Map<EAction, TDangerReviewMethod> = new Map();
-reviewCommand.set(EAction.message, danger.message);
-reviewCommand.set(EAction.warn, danger.warn);
-reviewCommand.set(EAction.fail, danger.fail);
-reviewCommand.set(EAction.markdown, danger.markdown);
 function unexpectedActionHandler (action, metadata, message, file, line) {
   console.error(`[Error] Unexpected action error. Action '${action}' is not defined. It may be caused by parser problems.`);
   console.info(`[INFO] A failed review message info:`);
@@ -42,6 +41,12 @@ function unexpectedActionHandler (action, metadata, message, file, line) {
 }
 
 export async function aggregate({reviewFiles}: IAggregateConfig){
+  const reviewCommand:Map<EAction, TDangerReviewMethod> = new Map();
+  reviewCommand.set(EAction.message, message);
+  reviewCommand.set(EAction.warn, warn);
+  reviewCommand.set(EAction.fail, fail);
+  reviewCommand.set(EAction.markdown, markdown);
+
   const reviewComments = await readReviewComments(reviewFiles);
   reviewComments.forEach(({action, message, file, line, metadata}) => {
     (reviewCommand.get(action) || unexpectedActionHandler.bind(null, action, metadata))(message, file, line);

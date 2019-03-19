@@ -1,4 +1,4 @@
-import { aggregate } from "./index"
+import { aggregate } from "../src"
 
 declare const global: any
 beforeEach(() => {
