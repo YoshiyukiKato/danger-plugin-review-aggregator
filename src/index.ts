@@ -56,6 +56,8 @@ export async function aggregate({reviewFiles}: IAggregateConfig){
 async function readReviewComments(reviewFiles:IReviewFile[]){
   const reviewComments:IReviewComment[] = [];
   for (let {paths, parser} of reviewFiles) {
+    if(paths.length === 0) continue;
+
     const entries:string[] = await glob.async(paths);
     const rawReviews:string[] = await readRawReviewFiles(entries);
     for(let rawReview of rawReviews) {

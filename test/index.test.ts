@@ -43,4 +43,16 @@ describe("aggregate", () => {
     });
     expect(global.warn).toHaveBeenCalledWith("this is mock message", "mock/file/path", 1);
   });
+
+  it("skips because paths is empty", async () => {
+    await aggregate({ 
+      reviewFiles: [
+        {
+          parser: parseMock,
+          paths: []
+        }
+      ]
+    });
+    expect(global.warn).not.toBeCalled();
+  });
 })
