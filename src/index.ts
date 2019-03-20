@@ -12,7 +12,7 @@ export interface IAggregateConfig {
 
 export interface IReviewFile {
   paths: string[];
-  parser: (string) => IReviewComment[];
+  parser(string):IReviewComment[]|Promise<IReviewComment[]>;
 }
 
 export interface IReviewComment {
@@ -54,13 +54,22 @@ export async function aggregate({reviewFiles}: IAggregateConfig){
 }
 
 async function readReviewComments(reviewFiles:IReviewFile[]){
-  return (await Promise.all(reviewFiles.map(async ({paths, parser}) => {
+  const reviewComments:IReviewComment[] = [];
+  for (let {paths, parser} of reviewFiles) {
     const entries:string[] = await glob.async(paths);
     const rawReviews:string[] = await readRawReviewFiles(entries);
-    return rawReviews.reduce((acc, rawComment) => [...acc, ...parser(rawComment)], []);
-  }))).reduce((acc, reviewComments) => [...acc, ...reviewComments]);
+    for(let rawReview of rawReviews) {
+      reviewComments.push(...await Promise.resolve(parser(rawReview)));
+    }
+  }
+  return reviewComments;
 }
 
 async function readRawReviewFiles(entries:string[]){
-  return (await Promise.all(entries.map(readFile))).map(buf => buf.toString());
+  const rawReviews:string[] = [];
+  for(let entry of entries){
+    const rawReview = (await readFile(entry)).toString();
+    rawReviews.push(rawReview);
+  }
+  return rawReviews;
 }

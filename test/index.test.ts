@@ -1,4 +1,5 @@
 import { aggregate } from "../src"
+import {parseMock, parseMockAsync} from "./fixture/mock-parser";
 
 declare const global: any
 beforeEach(() => {
@@ -16,8 +17,30 @@ afterEach(() => {
   global.markdown = undefined
 })
 
+const mockFilePath = __dirname + "/fixture/mock-review.json";
+
 describe("aggregate", () => {
-  it("is empty test. TBD", () => {
-    aggregate({ reviewFiles: [] });
+  it("use sync parser", async () => {
+    await aggregate({ 
+      reviewFiles: [
+        {
+          parser: parseMock,
+          paths: [mockFilePath]
+        }
+      ]
+    });
+    expect(global.warn).toHaveBeenCalledWith("this is mock message", "mock/file/path", 1);
+  });
+
+  it("use async parser", async () => {
+    await aggregate({ 
+      reviewFiles: [
+        {
+          parser: parseMockAsync,
+          paths: [mockFilePath]
+        }
+      ]
+    });
+    expect(global.warn).toHaveBeenCalledWith("this is mock message", "mock/file/path", 1);
   });
 })

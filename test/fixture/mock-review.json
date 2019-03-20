@@ -1,0 +1,6 @@
+[{
+  "line" : 1,
+  "file" : "mock/file/path",
+  "severity" : 1,
+  "message" : "this is mock message"
+}]
